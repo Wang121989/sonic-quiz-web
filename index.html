@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080b10">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="声波闯关网页版：听旋律猜歌名，支持混合、分类、无尽三种模式和本机曲库上传。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="声波闯关">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icon-144.png">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <title>声波闯关 · 网页版</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-grid"></div>
+    <div class="ambient-glow glow-a"></div>
+    <div class="ambient-glow glow-b"></div>
+    <div class="ambient-glow glow-c"></div>
+    <div class="ambient-grain"></div>
+  </div>
+
+  <header class="topbar">
+    <button class="brand" type="button" data-go-home aria-label="回到首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M4 16h3M10 10v12M16 5v22M22 9v14M28 13v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-copy">
+        <strong>声波闯关</strong>
+        <em>SONIC QUIZ · WEB</em>
+      </span>
+    </button>
+
+    <div class="top-actions">
+      <button id="libraryBtn" class="pill-button" type="button" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 0 4 21.5V7.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M8 9h7M8 13h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span>我的曲库</span>
+        <b id="libraryCount">10</b>
+      </button>
+      <button id="muteBtn" class="icon-button" type="button" aria-label="关闭声音" aria-pressed="false" title="开启 / 关闭声音">
+        <svg class="icon-on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 9.5v5h4l5 4v-13l-5 4H4Z" fill="currentColor"/>
+          <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon-off" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 9.5v5h4l5 4v-13l-5 4H4Z" fill="currentColor"/>
+          <path d="m16 9 5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ================= HOME ================= -->
+    <section id="homeScreen" class="screen is-active" aria-labelledby="homeTitle">
+      <div class="home-hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> NIGHT RADIO · WEB EDITION</p>
+          <h1 id="homeTitle">听一段旋律，<br><span>猜一首歌。</span></h1>
+          <p class="hero-lead">
+            10 首刻进 DNA 的经典旋律，加上你自己的本机曲库。
+            混合、分类、无尽三种模式，戴耳机，用耳朵通关。
+          </p>
+
+          <div class="hero-actions">
+            <button id="quickStartBtn" class="btn btn-primary" type="button">
+              <span>开始混合闯关</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button id="howBtn" class="btn btn-ghost" type="button">
+              <span class="question-dot">?</span> 怎么玩
+            </button>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong id="bestMixed">0</strong>
+              <span>混合最高分</span>
+            </div>
+            <i aria-hidden="true"></i>
+            <div class="hero-stat">
+              <strong id="bestEndless">0</strong>
+              <span>无尽最高分</span>
+            </div>
+            <i aria-hidden="true"></i>
+            <div class="hero-stat">
+              <strong id="totalSongs">10</strong>
+              <span>可用曲目</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="art-disc">
+            <div class="art-label">
+              <span>SONIC</span>
+              <b>?</b>
+              <span>QUIZ</span>
+            </div>
+          </div>
+          <div class="art-ring ring-1"></div>
+          <div class="art-ring ring-2"></div>
+          <div class="art-eq">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="art-badge">LOCAL<br>LIBRARY</div>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">CHOOSE YOUR RUN</p>
+          <h2>选择闯关模式</h2>
+        </div>
+        <p class="section-hint">三种模式分别记录最高分</p>
+      </div>
+
+      <div class="mode-grid">
+        <button class="mode-card mode-mixed" type="button" data-mode="mixed">
+          <span class="mode-index">01</span>
+          <span class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h7l2 5 2-5h5M4 17h5l2-5 2 5h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="mode-name">混合闯关</span>
+          <span class="mode-desc">从全部曲目随机抽 10 题，最经典的玩法。</span>
+          <span class="mode-meta"><b>10</b> 题 · 3 条生命 <em id="mixedBestInline">最高 0</em></span>
+          <span class="mode-arrow" aria-hidden="true">↗</span>
+        </button>
+
+        <button class="mode-card mode-category" type="button" data-mode="category">
+          <span class="mode-index">02</span>
+          <span class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h7v6H4V6Zm9 0h7v6h-7V6ZM4 14h7v4H4v-4Zm9 0h7v4h-7v-4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="mode-name">分类闯关</span>
+          <span class="mode-desc">选儿歌、古典、民谣或自定义分类，专项练习。</span>
+          <span class="mode-meta"><b id="categoryCount">6</b> 个分类 <em id="categoryBestInline">最高 0</em></span>
+          <span class="mode-arrow" aria-hidden="true">↗</span>
+        </button>
+
+        <button class="mode-card mode-endless" type="button" data-mode="endless">
+          <span class="mode-index">03</span>
+          <span class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 12c0-2 1.4-3.5 3.2-3.5 2.7 0 3.4 7 6.1 7 1.8 0 3.2-1.5 3.2-3.5S18.1 8.5 16.3 8.5c-1.2 0-2 .8-2.8 1.8M7 12c0 2 1.4 3.5 3.2 3.5 1.2 0 2-.8 2.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          <span class="mode-name">无尽闯关</span>
+          <span class="mode-desc">不设题数上限，答错扣生命，看你能撑多久。</span>
+          <span class="mode-meta"><b>∞</b> 题 · 3 条生命 <em id="endlessBestInline">最高 0</em></span>
+          <span class="mode-arrow" aria-hidden="true">↗</span>
+        </button>
+      </div>
+
+      <button class="library-strip" type="button" id="libraryStrip">
+        <span class="library-strip-icon" aria-hidden="true">♫</span>
+        <span class="library-strip-copy">
+          <strong>我的曲库</strong>
+          <small>从手机或电脑选择音频，加入本机题库；不上传服务器。</small>
+        </span>
+        <span class="library-strip-count"><b id="libraryStripCount">10</b> 首</span>
+        <span class="library-strip-arrow" aria-hidden="true">→</span>
+      </button>
+
+      <div class="home-note">
+        <span class="note-dot" aria-hidden="true"></span>
+        推荐佩戴耳机 · 内置旋律均为公有领域作品 · 曲库只保存在本机浏览器
+      </div>
+    </section>
+
+    <!-- ================= GAME ================= -->
+    <section id="gameScreen" class="screen" aria-labelledby="gameTitle">
+      <div class="game-top">
+        <button id="exitBtn" class="back-button" type="button" aria-label="退出本局">←</button>
+        <div class="game-mode">
+          <span id="modeTag">混合闯关</span>
+          <small id="progressText">第 1 / 10 题</small>
+        </div>
+        <div class="game-score">
+          <small>SCORE</small>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div id="hearts" class="hearts" aria-label="剩余生命 3 条"></div>
+      </div>
+
+      <div class="progress-track" aria-hidden="true"><i id="progressFill"></i></div>
+
+      <div class="game-grid">
+        <section class="player-card" aria-labelledby="gameTitle">
+          <div class="player-topline">
+            <span id="trackNo">TRACK 01</span>
+            <span id="difficultyTag">入门</span>
+          </div>
+
+          <div id="vinyl" class="vinyl">
+            <div class="vinyl-grooves" aria-hidden="true"></div>
+            <div class="vinyl-label">
+              <span>SONIC</span>
+              <b id="questionNo">Q.01</b>
+              <span>QUIZ</span>
+            </div>
+            <span class="vinyl-hole" aria-hidden="true"></span>
+          </div>
+
+          <div class="player-controls">
+            <button id="playBtn" class="play-button" type="button">
+              <span class="play-icon" aria-hidden="true">
+                <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor"/></svg>
+                <svg class="icon-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"/></svg>
+              </span>
+              <span id="playLabel">播放旋律</span>
+            </button>
+            <button id="replayBtn" class="round-button" type="button" aria-label="重听旋律">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M20 11a8 8 0 1 0-2.5 6.7M20 5v6h-6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <p id="playStateText" class="play-state">点击播放，仔细听</p>
+          <div class="waveform" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <span id="categoryTag" class="category-tag">儿歌</span>
+        </section>
+
+        <section class="quiz-card">
+          <div class="quiz-head">
+            <div>
+              <p class="quiz-kicker">NOW PLAYING</p>
+              <h2 id="gameTitle">听旋律，选出正确歌名</h2>
+            </div>
+            <div id="comboBadge" class="combo-badge">连击 ×0</div>
+          </div>
+
+          <div id="options" class="options" role="group" aria-label="答案选项"></div>
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+
+          <div class="quiz-actions">
+            <button id="hintBtn" class="hint-button" type="button">
+              <span>提示</span>
+              <small>排除一个错误项 · -20 分</small>
+            </button>
+            <button id="endBtn" class="end-button hidden" type="button">结束挑战</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ================= RESULT ================= -->
+    <section id="resultScreen" class="screen" aria-labelledby="resultTitle">
+      <div class="result-card">
+        <p id="resultKicker" class="result-kicker">RUN COMPLETE</p>
+        <div class="result-hero">
+          <div id="rankRing" class="rank-ring rank-s"><span id="rankLetter">S</span></div>
+          <div class="result-copy">
+            <h2 id="resultTitle">完美通关</h2>
+            <p id="rankLabel">金耳朵 · 一次都没错，也没用提示</p>
+            <div class="result-scoreline">
+              <span>本局得分</span>
+              <strong id="resultScore">0</strong>
+              <em id="newBest">NEW BEST</em>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-stats">
+          <div><b id="resultCorrect">10 / 10</b><span>答对</span></div>
+          <div><b id="resultCombo">×0</b><span>最高连击</span></div>
+          <div><b id="resultHearts">3</b><span>剩余生命</span></div>
+          <div><b id="resultHints">0</b><span>使用提示</span></div>
+        </div>
+
+        <p id="resultMessage" class="result-message"></p>
+
+        <div class="result-actions">
+          <button id="playAgainBtn" class="btn btn-primary" type="button">再来一局</button>
+          <button id="resultHomeBtn" class="btn btn-ghost" type="button">返回首页</button>
+          <button id="shareBtn" class="round-button share-button" type="button" aria-label="分享成绩">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <p class="result-footnote">总分 = 答题得分 + 剩余生命奖励；提示每次扣 20 分</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= CATEGORY DIALOG ================= -->
+  <dialog id="categoryDialog" class="sheet-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="dialog-kicker">CATEGORY RUN</p>
+        <h2>选择分类</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="关闭">×</button>
+    </div>
+    <p class="dialog-lead">每个分类的曲目数量不同；至少需要 4 首可用曲目才能生成选项。</p>
+    <div id="categoryList" class="category-list"></div>
+    <div class="dialog-foot">
+      <span>分类最高分：<b id="bestCategory">0</b></span>
+      <button class="text-button" type="button" id="openLibraryFromCategory">管理本机曲库 →</button>
+    </div>
+  </dialog>
+
+  <!-- ================= LIBRARY DIALOG ================= -->
+  <dialog id="libraryDialog" class="sheet-dialog library-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="dialog-kicker">LOCAL LIBRARY</p>
+        <h2>我的曲库</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="关闭">×</button>
+    </div>
+    <p class="dialog-lead">
+      从手机或电脑选择音频，加入本机题库。文件只保存在当前浏览器，不上传服务器，也不会同步给其他用户。
+    </p>
+
+    <div class="upload-panel">
+      <label class="file-drop" for="fileInput">
+        <span class="file-drop-icon" aria-hidden="true">♫</span>
+        <span class="file-drop-copy">
+          <strong id="fileDropTitle">选择翻唱音频</strong>
+          <small id="fileDropHint">支持 mp3 / m4a / aac / wav / ogg / webm，单首不超过 10MB</small>
+        </span>
+        <span class="file-drop-action">浏览</span>
+      </label>
+      <input id="fileInput" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.webm,.mp4" hidden>
+
+      <div class="record-row">
+        <button id="recordBtn" class="record-button" type="button">
+          <span class="record-dot" aria-hidden="true"></span>
+          <span id="recordLabel">录制 30 秒翻唱</span>
+        </button>
+        <span id="recordStatus" class="record-status">用麦克风录一段，只保存在本机</span>
+      </div>
+
+      <div class="upload-fields upload-fields-three">
+        <label class="field">
+          <span>歌名</span>
+          <input id="songTitleInput" type="text" maxlength="30" placeholder="给这首歌起个名字" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>演唱者（可选）</span>
+          <input id="songArtistInput" type="text" maxlength="30" placeholder="你的名字" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>分类</span>
+          <select id="songCategorySelect">
+            <option>自定义</option>
+            <option>儿歌</option>
+            <option>古典</option>
+            <option>民谣</option>
+            <option>民歌</option>
+            <option>节日</option>
+            <option>庆典</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="upload-actions">
+        <button id="saveSongBtn" class="btn btn-primary" type="button" disabled>加入本机曲库</button>
+        <button id="clearUploadBtn" class="btn btn-ghost" type="button">清空</button>
+      </div>
+      <div class="batch-row">
+        <label class="text-button batch-label" for="batchInput">批量添加翻唱文件</label>
+        <input id="batchInput" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.webm,.mp4" multiple hidden>
+        <span>每首自动用文件名命名，可稍后逐个修改</span>
+      </div>
+      <p id="uploadHint" class="upload-hint">请只添加你拥有使用权的翻唱或音频；音频只保存在本机浏览器。</p>
+    </div>
+
+    <div class="library-section-head">
+      <h3>内置 30 秒试听 <span id="previewSongCount">0</span></h3>
+      <span>直接试听 · 无需上传</span>
+    </div>
+    <div id="previewSongList" class="song-list"></div>
+
+    <div class="library-section-head">
+      <h3>本机翻唱 <span id="userSongCount">0</span></h3>
+      <span>内置 10 首 · 合计 <b id="libraryTotal">27</b> 首</span>
+    </div>
+    <div id="userSongList" class="song-list"></div>
+    <p id="libraryEmpty" class="library-empty">还没有上传曲目。添加后，它会出现在混合、分类和无尽模式里。</p>
+
+    <div class="library-tip">
+      <strong>关于版权</strong>
+      <p>请只添加你创作、已获授权或属于公有领域的音频。本工具不会公开传播你的文件。</p>
+    </div>
+  </dialog>
+
+  <!-- ================= HOW DIALOG ================= -->
+  <dialog id="howDialog" class="sheet-dialog small-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="dialog-kicker">HOW TO PLAY</p>
+        <h2>怎么玩</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="关闭">×</button>
+    </div>
+    <div class="how-list">
+      <div><b>1</b><p>选择模式：混合随机 10 题，分类专项练习，无尽直到生命耗尽。</p></div>
+      <div><b>2</b><p>点「播放旋律」，从四个歌名里选出正确答案；可以重听。</p></div>
+      <div><b>3</b><p>答错扣一条生命，生命耗尽本局结束；连续答对会有连击加分。</p></div>
+      <div><b>4</b><p>提示会排除一个错误项，但每次扣 20 分。</p></div>
+    </div>
+    <div class="dialog-foot">
+      <span>快捷键：1–4 选答案 · 空格播放 · R 重听 · H 提示</span>
+      <button class="btn btn-primary" type="button" id="howStartBtn">开始混合闯关</button>
+    </div>
+  </dialog>
+
+  <!-- ================= EXIT DIALOG ================= -->
+  <dialog id="exitDialog" class="sheet-dialog small-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="dialog-kicker">LEAVE RUN</p>
+        <h2>离开本轮？</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="关闭">×</button>
+    </div>
+    <p class="dialog-lead">当前进度不会保存。你随时可以在首页重新开始。</p>
+    <div class="dialog-actions">
+      <button id="cancelExit" class="btn btn-ghost" type="button">继续挑战</button>
+      <button id="confirmExit" class="btn btn-danger" type="button">离开</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
+  <script src="assets/songs.js"></script>
+  <script src="assets/preview-songs.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
